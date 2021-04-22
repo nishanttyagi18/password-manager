@@ -5,6 +5,7 @@ const multer = require("multer");
 const authRoutes = require("./routes/auth");
 const passwordRoutes = require("./routes/password");
 const vaultRoutes = require("./routes/vault");
+const cardRoutes = require("./routes/card");
 const fileRoutes = require("./routes/file");
 
 const app = express();
@@ -41,6 +42,7 @@ app.use(multer({ storage: fileStorage }).single("myfile"));
 app.use("/api/auth", authRoutes);
 app.use("/api/vault", vaultRoutes);
 app.use("/api/vault", passwordRoutes);
+app.use("/api/vault", cardRoutes);
 app.use("/api/vault", fileRoutes);
 
 // Error handler

@@ -34,7 +34,7 @@ exports.addCard = async (req, res, next) => {
   const vault = req.vaultId;
 
   try {
-    const myCard = new Password({
+    const myCard = new Card({
       nameOnCard,
       number,
       cvv,
@@ -60,19 +60,25 @@ exports.updateCard = async (req, res, next) => {
   const cardId = req.params.cardId;
 
   const nameOnCard = req.body.name;
-  const number = encrypt(req.body.number);
-  const cvv = encrypt(req.body.cvv);
+  const number = req.body.number;
+  const cvv = req.body.cvv;
   const typeOfCard = req.body.type;
-  const expiry = encrypt(req.body.expiry);
+  const expiry = req.body.expiry;
 
+  for (let [key] of Object.entries(req.body)) {
+    if (key !== "nameOnCard" && key !== "typeOfCard") {
+      req.body[key] = encrypt(req.body[key]);
+    } else {
+      req.body[key] = req.body[key];
+    }
+  }
   try {
-    const savedCard = await Card.findOneAndUpdate(
-      { _id: cardId },
-      { nameOnCard, number, cvv, typeOfCard, expiry },
-      { upsert: true, new: true }
-    );
+    const savedCard = await Card.findOneAndUpdate({ _id: cardId }, req.body, {
+      upsert: true,
+      new: true,
+    });
 
-    if (savedPassword) {
+    if (savedCard) {
       res.status(201).json({
         message: "Card Updated successfully!",
         savedCard,

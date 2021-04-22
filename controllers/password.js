@@ -59,11 +59,20 @@ exports.updatePassword = async (req, res, next) => {
   const password = encrypt(req.body.password);
 
   try {
-    const savedPassword = await Password.findOneAndUpdate(
-      { _id: passId },
-      { email, password },
-      { upsert: true, new: true }
-    );
+    var savedPassword = "";
+    if (email) {
+      savedPassword = await Password.findOneAndUpdate(
+        { _id: passId },
+        { email, password },
+        { upsert: true, new: true }
+      );
+    } else {
+      savedPassword = await Password.findOneAndUpdate(
+        { _id: passId },
+        { password },
+        { upsert: true, new: true }
+      );
+    }
 
     // if (savedPassword) {
     res.status(201).json({

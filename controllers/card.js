@@ -1,3 +1,5 @@
+const { validationResult } = require("express-validator");
+
 const Card = require("../models/card");
 const Vault = require("../models/vault");
 const { encrypt, decrypt } = require("../utils/encrypt-decrypt");
@@ -26,10 +28,19 @@ exports.getCards = async (req, res, next) => {
 
 // Adding new card
 exports.addCard = async (req, res, next) => {
-  const nameOnCard = req.body.name;
+  // Handling validation errors
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation failed.");
+    error.statusCode = 422;
+    error.data = errors.array();
+    return next(error);
+  }
+
+  const nameOnCard = req.body.nameOnCard;
   const number = encrypt(req.body.number);
   const cvv = encrypt(req.body.cvv);
-  const typeOfCard = req.body.type;
+  const typeOfCard = req.body.typeOfCard;
   const expiry = encrypt(req.body.expiry);
   const vault = req.vaultId;
 
@@ -57,6 +68,15 @@ exports.addCard = async (req, res, next) => {
 
 // Updating card with ID
 exports.updateCard = async (req, res, next) => {
+  // Handling validation errors
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation failed.");
+    error.statusCode = 422;
+    error.data = errors.array();
+    return next(error);
+  }
+
   const cardId = req.params.cardId;
 
   const nameOnCard = req.body.name;
@@ -111,11 +131,15 @@ exports.getCardById = async (req, res, next) => {
   const cardId = req.params.cardId;
 
   try {
-    const savedCard = await Card.find({
+    const savedCard = await Card.findOne({
       _id: cardId,
     });
 
     if (savedCard) {
+      // console.log(savedCard);
+      savedCard.number = decrypt(savedCard.number);
+      savedCard.cvv = decrypt(savedCard.cvv);
+      savedCard.expiry = decrypt(savedCard.expiry);
       res.status(200).json(savedCard);
     }
   } catch (error) {

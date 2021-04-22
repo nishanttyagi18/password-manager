@@ -1,12 +1,22 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
 const User = require("../models/user");
 const Vault = require("../models/vault");
 const { throwError } = require("../utils/catch-error");
 
 // Signup Controller
 exports.signup = async (req, res, next) => {
+  // Handling validation errors
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation failed.");
+    error.statusCode = 422;
+    error.data = errors.array();
+    return next(error);
+  }
+
   const fullName = req.body.fullName;
   const email = req.body.email;
   const password = req.body.password;

@@ -109,7 +109,7 @@ exports.updateCard = async (req, res, next) => {
   }
 };
 
-// Getting password by Website
+// Getting Card by Type
 exports.getCardByType = async (req, res, next) => {
   const typeOfCard = req.body.type;
   try {
@@ -126,7 +126,7 @@ exports.getCardByType = async (req, res, next) => {
   }
 };
 
-// Getting password by ID
+// Getting Card by ID
 exports.getCardById = async (req, res, next) => {
   const cardId = req.params.cardId;
 
